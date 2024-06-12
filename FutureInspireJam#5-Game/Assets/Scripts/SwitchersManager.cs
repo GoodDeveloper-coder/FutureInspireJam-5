@@ -6,9 +6,13 @@ using UnityEngine;
 public class SwitchersManager : MonoBehaviour
 {
     [SerializeField] private int _switchersToNextLevel = 3;
-    [SerializeField] private GameObject _doorToNextLevel;
+    [SerializeField] private Door _doorToNextLevel;
     [SerializeField] private List<GameObject> _switchedIndicators;
-    [SerializeField] private List<GameObject> _correctSwitchedIndicators = new List<GameObject>();
+
+    [Header(" ")]
+    [SerializeField] private Material _correctSwitcherMaterial;
+    [SerializeField] private Material _incorrectSwitcherMaterial;
+
     private int _correctSwitched = 0;
 
     void Start()
@@ -20,15 +24,17 @@ public class SwitchersManager : MonoBehaviour
 
     public void AddSwitcher()
     {
-        _correctSwitchedIndicators[_correctSwitched++].SetActive(true);
+        _correctSwitched++;
+        _doorToNextLevel.EnableIndicator();
 
         if (_correctSwitched == _switchersToNextLevel)
-           _doorToNextLevel.transform.DOMoveY(_doorToNextLevel.transform.position.y + 4f, 3);
+            LevelsManager.instance.NextLevel();
     }
 
     public void RemoveSwitcher()
     {
-       _correctSwitchedIndicators[--_correctSwitched].SetActive(false);
+        _correctSwitched--;
+        _doorToNextLevel.DisableIndicator();
     }
 
     
@@ -37,5 +43,17 @@ public class SwitchersManager : MonoBehaviour
         foreach (GameObject switcher in _switchedIndicators)
             if (switcher.GetComponent<Switcher>()._switched)
                 switcher.GetComponent<Switcher>().Switch();
+
+        _doorToNextLevel.DisableAllIndicators();
+    }
+
+    public Material GetCorrectSwitcherMaterial()
+    {
+        return _correctSwitcherMaterial;
+    }
+
+    public Material GetIncorrectSwitcherMaterial()
+    {
+        return _incorrectSwitcherMaterial;
     }
 }

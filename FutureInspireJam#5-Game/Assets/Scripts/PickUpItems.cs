@@ -1,8 +1,10 @@
+using TMPro;
 using UnityEngine;
 
 public class PickUpItems : MonoBehaviour
 {
     [SerializeField] private float _maxDistance = 8;
+    [SerializeField] private GameObject _interactText;
     private GameObject _pickedGameObject;
     private int _switchedSwitchers = 0;
     private Switcher _lastSwitcher;
@@ -14,6 +16,7 @@ public class PickUpItems : MonoBehaviour
 
     void Update()
     {
+        bool canInteract = false;
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Camera.main.pixelWidth / 2 , Camera.main.pixelHeight / 2, 0));
         if (Input.GetMouseButtonDown(0))
         {
@@ -25,7 +28,7 @@ public class PickUpItems : MonoBehaviour
                     {
                         _pickedGameObject = hit.transform.gameObject;
                         _pickedGameObject.transform.SetParent(transform);
-
+                
                         if (_pickedGameObject.TryGetComponent<Collider>(out Collider collider))
                             collider.enabled = false;
 
@@ -33,6 +36,8 @@ public class PickUpItems : MonoBehaviour
                         {
                             rigidbody.constraints = RigidbodyConstraints.FreezeAll;
                         }
+                        
+                        canInteract = true;
                     }
                 }
             }
@@ -54,6 +59,8 @@ public class PickUpItems : MonoBehaviour
                             }
                             else
                                 _switchedSwitchers++;
+                        else
+                            _switchedSwitchers++;
 
                         _lastSwitcher = switcher;
                     }
@@ -69,6 +76,18 @@ public class PickUpItems : MonoBehaviour
                     }
 
                 }
+
+        if (Physics.Raycast(ray, out RaycastHit test, _maxDistance))
+            if (test.transform.tag == "Switcher")
+                canInteract = true;
+            else if (test.transform.tag == "Pickable")
+                if (_pickedGameObject == null)
+                    canInteract = true;
+
+        if (canInteract)
+            _interactText.SetActive(true);
+        else
+            _interactText.SetActive(false);
 
         if (Input.GetMouseButtonUp(0))
             if (_pickedGameObject != null)
