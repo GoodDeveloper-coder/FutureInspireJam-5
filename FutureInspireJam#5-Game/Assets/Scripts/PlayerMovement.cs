@@ -4,8 +4,10 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float _speed = 5f;
     [SerializeField] private float _jumpForce = 5f;
-
+    [SerializeField] private LayerMask _groundLayerMask;
     private Rigidbody _rb;
+    private bool _isOnGround = false;
+    private bool _canMove = true;
 
     void Start()
     {
@@ -14,7 +16,11 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        if (!_canMove)
+           return;
+
         Move();
+        CheckGround();
 
         if (Input.GetKeyDown(KeyCode.Space))
             Jump();
@@ -31,6 +37,18 @@ public class PlayerMovement : MonoBehaviour
 
     void Jump()
     {
-        _rb.AddForce(transform.up * _jumpForce, ForceMode.Impulse);
+        if (_isOnGround)
+            _rb.AddForce(transform.up * _jumpForce, ForceMode.Impulse);
+    }
+    
+    void CheckGround()
+    {
+        _isOnGround =  Physics.CheckSphere(transform.position + new Vector3(0, -1f, 0), 0.15f, _groundLayerMask);
+    }
+
+    public void SetCanMove(bool canMove)
+    {   
+        _canMove = canMove;
+        _rb.velocity = Vector3.zero;
     }
 }

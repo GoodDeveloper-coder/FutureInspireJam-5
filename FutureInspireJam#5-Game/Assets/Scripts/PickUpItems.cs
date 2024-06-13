@@ -5,6 +5,7 @@ public class PickUpItems : MonoBehaviour
 {
     [SerializeField] private float _maxDistance = 8;
     [SerializeField] private GameObject _interactText;
+    [SerializeField] private GameObject _pickUpText;
     private GameObject _pickedGameObject;
     private int _switchedSwitchers = 0;
     private Switcher _lastSwitcher;
@@ -16,7 +17,6 @@ public class PickUpItems : MonoBehaviour
 
     void Update()
     {
-        bool canInteract = false;
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Camera.main.pixelWidth / 2 , Camera.main.pixelHeight / 2, 0));
         if (Input.GetMouseButtonDown(0))
         {
@@ -36,8 +36,6 @@ public class PickUpItems : MonoBehaviour
                         {
                             rigidbody.constraints = RigidbodyConstraints.FreezeAll;
                         }
-                        
-                        canInteract = true;
                     }
                 }
             }
@@ -78,16 +76,27 @@ public class PickUpItems : MonoBehaviour
                 }
 
         if (Physics.Raycast(ray, out RaycastHit test, _maxDistance))
+        {
             if (test.transform.tag == "Switcher")
-                canInteract = true;
+            {
+                _interactText.SetActive(true);
+                _pickUpText.SetActive(false);
+            }
             else if (test.transform.tag == "Pickable")
+            {
                 if (_pickedGameObject == null)
-                    canInteract = true;
+                    _pickUpText.SetActive(true);
+                else
+                    _pickUpText.SetActive(false);
 
-        if (canInteract)
-            _interactText.SetActive(true);
+                _interactText.SetActive(false);
+            }
+        }
         else
+        {
+            _pickUpText.SetActive(false);
             _interactText.SetActive(false);
+        }
 
         if (Input.GetMouseButtonUp(0))
             if (_pickedGameObject != null)
